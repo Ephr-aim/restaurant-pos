@@ -1,9 +1,11 @@
 # Use PHP-FPM as base
 FROM php:8.2-fpm
 
-# Install Nginx, PostgreSQL client and dependencies
+# Install Nginx and SQLite
 RUN apt-get update && apt-get install -y \
     nginx \
+    sqlite3 \
+    libsqlite3-dev \
     git \
     curl \
     libpng-dev \
@@ -14,9 +16,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
-    libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -30,10 +31,14 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Create SQLite database file
+RUN mkdir -p database && touch database/database.sqlite
+
 # Set permissions for Laravel
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
+    && chmod -R 755 /var/www/bootstrap/cache \
+    && chmod 755 database/database.sqlite
 
 # Generate Laravel key if .env doesn't exist
 RUN if [ ! -f ".env" ]; then \

@@ -12,8 +12,4 @@ services:
         value: https://restaurant-pos.onrender.com
     healthCheckPath: /
     autoDeploy: true
-
-databases:
-  - name: restaurant-db
     plan: free
-    databaseName: restaurant_pos
