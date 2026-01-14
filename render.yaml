@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: bulanda-canteen
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        fromService:
+          type: web
+          name: bulanda-canteen
+          property: url
+    healthCheckPath: /
+    autoDeploy: true
+
+databases:
+  - name: bulanda-db
+    plan: free
+    databaseName: bulanda_canteen

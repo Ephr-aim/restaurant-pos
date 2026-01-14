@@ -1,0 +1,167 @@
+@extends('backend.master')
+@section('title', 'Receipt_'.$order->id)
+@section('content')
+
+<style>
+/* Critical print fix for Chrome/Edge */
+@media print {
+    @page {
+        margin: 0;
+        size: auto;
+    }
+    
+    body {
+        margin: 0 !important;
+        padding: 2mm !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #000000 !important;
+        background: #FFFFFF !important;
+    }
+    
+    * {
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #000000 !important;
+        background-color: transparent !important;
+        -webkit-text-fill-color: #000000 !important;
+    }
+    
+    .receipt-container {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+</style>
+
+<div class="card">
+  <!-- Main content -->
+  <div class="receipt-container mt-0" id="printable-section" style="max-width: {{ $maxWidth}}; font-size: 12px; font-family: 'Courier New', Courier, monospace;">
+    <div class="text-center">
+      @if(readConfig('is_show_logo_invoice'))
+      <img src="{{ assetImage(readconfig('site_logo')) }}" height="30" width="70" alt="Logo" style="filter: none !important; opacity: 1 !important;">
+      @endif
+      @if(readConfig('is_show_site_invoice'))
+      <h3 style="color: #000000 !important;">{{ readConfig('site_name') }}</h3>
+      @endif
+      @if(readConfig('is_show_address_invoice'))<div style="color: #000000 !important;">{{ readConfig('contact_address') }}</div>@endif
+      @if(readConfig('is_show_phone_invoice'))<div style="color: #000000 !important;">{{ readConfig('contact_phone') }}</div>@endif
+      @if(readConfig('is_show_email_invoice'))<div style="color: #000000 !important;">{{ readConfig('contact_email') }}</div>@endif
+    </div>
+    <div style="color: #000000 !important;">{{ 'Order Taken By: '.($order->orderTaker->name ?? 'N/A') }}
+{{ 'Printed By: '.auth()->user()->name}}</div>
+    <div style="color: #000000 !important;">{{ 'Order: #'.$order->id}}</div>
+    <hr style="border-color: #000000 !important;">
+    <div class="row justify-content-between mx-auto">
+      <div class="text-left">
+        @if(readConfig('is_show_customer_invoice'))
+        <address style="color: #000000 !important;">
+          Cottage: {{ $order->cottage->name ?? 'N/A' }}<br>
+          Customer: {{ $order->customer_name ?? '' }}<br>
+        </address>
+        @endif
+      </div>
+      <div class="text-right">
+        <address class="text-right" style="color: #000000 !important;">
+          <p>{{ now()->setTimezone('Africa/Nairobi')->format('d-M-Y') }}</p>
+          <p>{{ now()->setTimezone('Africa/Nairobi')->format('h:i:s A') }}</p>
+        </address>
+      </div>
+    </div>
+    <hr style="border-color: #000000 !important;">
+    <table style="width: 100%; color: #000000 !important; border: 1px solid #000 !important;">
+      <thead>
+        <tr>
+          <th style="text-align: left; color: #000000 !important;">Product</th>
+          <th style="text-align: right; color: #000000 !important;"></th>
+          <th style="text-align: right; color: #000000 !important;">Total {{ currency()->symbol}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach ($order->products as $item)
+        <tr>
+          <td style="text-align: left; color: #000000 !important;">{{ $item->product->name ?? ''}}</td>
+          <td style="text-align: right; color: #000000 !important;">{{ $item->quantity }} x {{ $item->price }}</td>
+          <td style="text-align: right; color: #000000 !important;">{{ $item->quantity * $item->price }}</td>
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
+    <hr style="border-color: #000000 !important;">
+    <table style="width: 100%; color: #000000 !important;">
+      <tr>
+        <td style="text-align: left; color: #000000 !important;">Subtotal:</td>
+        <td style="text-align: right; color: #000000 !important;">{{ $order->sub_total }}</td>
+      </tr>
+      <tr>
+        <td style="text-align: left; color: #000000 !important;">Discount:</td>
+        <td style="text-align: right; color: #000000 !important;">{{ $order->discount }}</td>
+      </tr>
+      <tr>
+        <td style="text-align: left; color: #000000 !important;">Total:</td>
+        <td style="text-align: right; color: #000000 !important;">{{ $order->total }}</td>
+      </tr>
+      <tr>
+        <td style="text-align: left; color: #000000 !important;">Paid:</td>
+        <td style="text-align: right; color: #000000 !important;">{{ $order->paid }}</td>
+      </tr>
+      <tr>
+        <td style="text-align: left; color: #000000 !important;">Due:</td>
+        <td style="text-align: right; color: #000000 !important;">{{ $order->due }}</td>
+      </tr>
+    </table>
+    <hr style="border-color: #000000 !important;">
+    <table style="width: 100%; color: #000000 !important;">
+      <tr>
+        <td style="color: #000000 !important;">Payment Method:</td>
+        <td class="text-right" style="color: #000000 !important;">
+          @if($order->transactions->count() > 0)
+            @php
+                $paymentMethod = $order->transactions->first()->paid_by;
+                $methodNames = [
+                  'cash' => 'Cash',
+                  'card' => 'Card',
+                  'mobile_money' => 'Mobile Money',
+                ];
+            @endphp
+            {{ $methodNames[$paymentMethod] ?? ucfirst($paymentMethod) }}
+          @else
+            Cash
+          @endif
+        </td>
+      </tr>
+    </table>
+    <hr style="border-color: #000000 !important;">
+    <div class="text-center">
+      <p style="font-size: 12px; color: #000000 !important;">@if(readConfig('is_show_note_invoice')){{ readConfig('note_to_customer_invoice') }}@endif</p>
+    </div>
+  </div>
+  <div class="no-print">
+    <div class="card-body text-center">
+      <button type="button" onclick="window.print();" class="btn bg-gradient-primary">
+        <i class="fas fa-print"></i> Print Receipt
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Force print settings
+function printReceipt() {
+    // Add a small delay to ensure CSS is applied
+    setTimeout(function() {
+        window.print();
+    }, 100);
+}
+
+// Auto-print after page loads
+window.onload = function() {
+    // Uncomment to auto-print
+    // printReceipt();
+};
+</script>
+
+@endsection

@@ -1,0 +1,231 @@
+@extends('backend.master')
+
+@section('title', 'Product Purchase')
+
+@section('content')
+<div class="card">
+  <div class="card-body p-2 p-md-4 pt-0">
+    <div class="row g-4">
+      <div class="col-md-12">
+        <div id="purchase"></div>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection
+
+@push('style')
+<style>
+  .react-datepicker-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+  }
+</style>
+@endpush
+
+@push('script')
+    <script src="{{ asset('build/assets/app-13470d73.js') }}"></script>
+@endpush
+<script>
+// Clean date fix - sets date and makes create button work
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Clean date fix loading...");
+    
+    // Function to set and lock the date
+    function setAndLockDate() {
+        // Find date input
+        const dateInput = document.querySelector('input[type="date"]');
+        if (!dateInput) {
+            console.log("Date input not found yet");
+            return false;
+        }
+        
+        // Set today's date
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const todayStr = yyyy + "-" + mm + "-" + dd;
+        
+        console.log("Setting date to:", todayStr);
+        
+        // Set the value
+        dateInput.value = todayStr;
+        
+        // Make it appear readonly
+        dateInput.style.backgroundColor = "#e9ecef";
+        dateInput.style.cursor = "not-allowed";
+        dateInput.readOnly = true;
+        
+        // Prevent user interaction
+        dateInput.addEventListener("keydown", function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        dateInput.addEventListener("mousedown", function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        dateInput.addEventListener("focus", function() {
+            this.blur();
+        });
+        
+        return true;
+    }
+    
+    // Try to set date multiple times
+    let attempts = 0;
+    function trySetDate() {
+        if (setAndLockDate()) {
+            console.log("✅ Date set successfully");
+            
+            // Now fix the create button
+            fixCreateButton();
+        } else if (attempts < 5) {
+            attempts++;
+            setTimeout(trySetDate, 500);
+        }
+    }
+    
+    // Function to fix create button
+    function fixCreateButton() {
+        // Find create button
+        const buttons = document.querySelectorAll("button");
+        let createButton = null;
+        
+        for (let btn of buttons) {
+            const text = btn.innerText || btn.textContent || "";
+            if (text.toLowerCase().includes("create")) {
+                createButton = btn;
+                break;
+            }
+        }
+        
+        if (createButton) {
+            console.log("Found create button");
+            
+            // Add click handler to ensure date is included
+            createButton.addEventListener("click", function(e) {
+                console.log("Create button clicked - ensuring date...");
+                
+                // Make sure date is set
+                const dateInput = document.querySelector('input[type="date"]');
+                if (dateInput && !dateInput.value) {
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, "0");
+                    const dd = String(today.getDate()).padStart(2, "0");
+                    dateInput.value = yyyy + "-" + mm + "-" + dd;
+                }
+                
+                // Don't prevent default - let the form submit
+            }, true); // Capture phase to run first
+        }
+    }
+    
+    // Start
+    setTimeout(trySetDate, 1000);
+});
+</script>
+<script>
+<script>
+// CORRECT FIX: For text date input
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Correct fix: Looking for text date input...");
+    
+    function setPurchaseDate() {
+        // Find by name="date" (it's type="text", not type="date")
+        const dateInput = document.querySelector('input[name="date"]');
+        
+        if (dateInput) {
+            console.log("Found date input:", dateInput);
+            
+            // Set today's date in YYYY-MM-DD format
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, "0");
+            const dd = String(today.getDate()).padStart(2, "0");
+            const todayStr = yyyy + "-" + mm + "-" + dd;
+            
+            console.log("Setting date to:", todayStr);
+            
+            // Set the value
+            dateInput.value = todayStr;
+            
+            // Make it appear readonly
+            dateInput.style.backgroundColor = "#e9ecef";
+            dateInput.style.cursor = "not-allowed";
+            dateInput.readOnly = true;
+            
+            // Prevent user changes
+            dateInput.addEventListener("keydown", function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            dateInput.addEventListener("mousedown", function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            dateInput.addEventListener("focus", function() {
+                this.blur();
+            });
+            
+            // Also trigger React events
+            dateInput.dispatchEvent(new Event("input", { bubbles: true }));
+            dateInput.dispatchEvent(new Event("change", { bubbles: true }));
+            
+            return true;
+        }
+        return false;
+    }
+    
+    function fixCreateButton() {
+        // Find create button
+        const buttons = document.querySelectorAll("button");
+        for (let btn of buttons) {
+            const text = (btn.innerText || btn.textContent || "").toLowerCase();
+            if (text.includes("create")) {
+                console.log("Found create button");
+                
+                // Add click handler
+                btn.addEventListener("click", function() {
+                    console.log("Create button clicked - ensuring date...");
+                    
+                    // Double-check date is set
+                    const dateInput = document.querySelector('input[name="date"]');
+                    if (dateInput && !dateInput.value) {
+                        const today = new Date();
+                        const yyyy = today.getFullYear();
+                        const mm = String(today.getMonth() + 1).padStart(2, "0");
+                        const dd = String(today.getDate()).padStart(2, "0");
+                        dateInput.value = yyyy + "-" + mm + "-" + dd;
+                    }
+                }, true);
+                
+                break;
+            }
+        }
+    }
+    
+    // Try multiple times
+    let attempts = 0;
+    function tryToFix() {
+        if (setPurchaseDate()) {
+            console.log("✅ Date set successfully!");
+            fixCreateButton();
+        } else if (attempts < 6) {
+            attempts++;
+            setTimeout(tryToFix, 500);
+        } else {
+            console.log("❌ Could not find date input");
+        }
+    }
+    
+    // Start
+    setTimeout(tryToFix, 1000);
+});
+</script>

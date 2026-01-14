@@ -1,0 +1,51 @@
+# Laravel
+/vendor/
+/node_modules/
+/public/hot
+/public/storage
+/storage/*.key
+/.idea
+/.vscode
+
+# Environment
+.env
+.env.production
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+storage/framework/cache/data/*
+storage/framework/views/*.php
+storage/logs/*.log
+
+# Backups
+*.backup
+*.sql
+*.tar.gz
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+docker-compose.override.yml
+
+# Testing
+.phpunit.result.cache
+
+# Misc
+*.sass-cache/
+*.cache/

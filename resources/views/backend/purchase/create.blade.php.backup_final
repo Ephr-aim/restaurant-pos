@@ -1,0 +1,272 @@
+@extends('backend.master')
+
+@section('title', 'Product Purchase')
+
+@section('content')
+<div class="card">
+  <div class="card-body p-2 p-md-4 pt-0">
+    <div class="row g-4">
+      <div class="col-md-12">
+        <div id="purchase"></div>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection
+
+@push('style')
+<style>
+  .react-datepicker-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+  }
+</style>
+@endpush
+
+@push('script')
+    <script src="{{ asset('build/assets/app-13470d73.js') }}"></script>
+    
+    <!-- ONE FINAL FIX -->
+    <script>
+    // Wait for everything to load
+    window.addEventListener('load', function() {
+@endpush
+<script>
+// CORRECT SOLUTION: Works with React DatePicker
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Correct purchase date solution loading...');
+    
+    function initializePurchaseDate() {
+        // Find the date input
+        const dateInput = document.querySelector('input[name="date"]');
+        if (!dateInput) {
+            console.log('Date input not found yet');
+            return false;
+        }
+        
+        console.log('Found date input, initializing...');
+        
+        // Set today's date
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = yyyy + '-' + mm + '-' + dd;
+        
+        console.log('Setting date to:', todayStr);
+        
+        // IMPORTANT: We need to work WITH React, not against it
+        // 1. Set the value
+        dateInput.value = todayStr;
+        
+        // 2. Trigger React's change handler properly
+        // This is how React DatePicker expects changes
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLInputElement.prototype, 'value'
+        ).set;
+        
+        nativeInputValueSetter.call(dateInput, todayStr);
+        
+        // 3. Dispatch all events React listens for
+        dateInput.dispatchEvent(new Event('input', { bubbles: true }));
+        dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // 4. Also update React's internal tracker
+        if (dateInput._valueTracker) {
+            dateInput._valueTracker.setValue(todayStr);
+        }
+        
+        // 5. Find and update the DatePicker component too
+        const datepickerWrappers = document.querySelectorAll('.react-datepicker-wrapper');
+        datepickerWrappers.forEach(wrapper => {
+            const dpInput = wrapper.querySelector('input');
+            if (dpInput && dpInput !== dateInput) {
+                dpInput.value = todayStr;
+                nativeInputValueSetter.call(dpInput, todayStr);
+                dpInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+        
+        console.log('✅ Date initialized successfully');
+        
+        // 6. Now make it unchangeable by user
+        // Instead of readonly, we'll intercept and revert any changes
+        let originalValue = todayStr;
+        
+        function revertDateChange(e) {
+            if (dateInput.value !== originalValue) {
+                console.log('Attempt to change date detected, reverting...');
+                
+                // Revert to original value
+                dateInput.value = originalValue;
+                nativeInputValueSetter.call(dateInput, originalValue);
+                dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                // Also revert DatePicker
+                datepickerWrappers.forEach(wrapper => {
+                    const dpInput = wrapper.querySelector('input');
+                    if (dpInput) {
+                        dpInput.value = originalValue;
+                        nativeInputValueSetter.call(dpInput, originalValue);
+                        dpInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+        
+        // Monitor for changes
+        dateInput.addEventListener('input', revertDateChange);
+        dateInput.addEventListener('change', revertDateChange);
+        
+        // Also monitor DatePicker inputs
+        datepickerWrappers.forEach(wrapper => {
+            const dpInput = wrapper.querySelector('input');
+            if (dpInput) {
+                dpInput.addEventListener('input', revertDateChange);
+                dpInput.addEventListener('change', revertDateChange);
+            }
+        });
+        
+        // Visual indication
+        dateInput.style.backgroundColor = '#f8f9fa';
+        dateInput.style.cursor = 'not-allowed';
+        
+        return true;
+    }
+    
+    // Try multiple times (React might load slowly)
+    let attempts = 0;
+    const maxAttempts = 8;
+    
+    function tryInitialize() {
+        if (initializePurchaseDate()) {
+            console.log('✅ Purchase date system initialized');
+            
+            // Also ensure date stays set during form submission
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    console.log('Form submitting, verifying date...');
+                    initializePurchaseDate(); // Re-apply just in case
+                });
+            }
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            console.log(`Attempt ${attempts}/${maxAttempts} failed, retrying...`);
+            setTimeout(tryInitialize, 500);
+        } else {
+            console.log('❌ Could not initialize date system');
+        }
+    }
+    
+    // Start initialization
+    setTimeout(tryInitialize, 1000);
+});
+</script>
+<script>
+// Remove DatePicker dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Removing DatePicker dropdown...');
+    
+    function disableDatePicker() {
+        // Find all DatePicker elements
+        const datepickers = document.querySelectorAll('.react-datepicker-wrapper, [class*="datepicker"]');
+        
+        datepickers.forEach(datepicker => {
+            console.log('Found DatePicker:', datepicker);
+            
+            // 1. Make the input non-clickable
+            const input = datepicker.querySelector('input');
+            if (input) {
+                // Remove all click/mouse events
+                const clone = input.cloneNode(true);
+                datepicker.replaceChild(clone, input);
+                
+                // Make it completely non-interactive
+                clone.style.pointerEvents = 'none';
+                clone.style.cursor = 'not-allowed';
+                
+                // Block all events
+                ['click', 'mousedown', 'mouseup', 'focus', 'touchstart'].forEach(event => {
+                    clone.addEventListener(event, function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        this.blur();
+                        return false;
+                    }, true);
+                });
+                
+                console.log('Disabled DatePicker input');
+            }
+            
+            // 2. Hide the calendar dropdown if it exists
+            const calendars = document.querySelectorAll('.react-datepicker, [class*="datepicker-popper"], [class*="calendar"]');
+            calendars.forEach(calendar => {
+                calendar.style.display = 'none';
+                calendar.style.visibility = 'hidden';
+                calendar.style.opacity = '0';
+                calendar.style.pointerEvents = 'none';
+            });
+            
+            // 3. Remove any event listeners from the wrapper
+            datepicker.style.pointerEvents = 'none';
+        });
+        
+        // Also look for and hide any popup/popper elements
+        const hideElements = [
+            '.react-datepicker-popper',
+            '.react-datepicker__portal',
+            '[role="dialog"]',
+            '[aria-label*="date"]:not(input)'
+        ];
+        
+        hideElements.forEach(selector => {
+            document.querySelectorAll(selector).forEach(el => {
+                if (!el.matches('input')) {
+                    el.style.display = 'none';
+                    el.style.visibility = 'hidden';
+                }
+            });
+        });
+        
+        return datepickers.length > 0;
+    }
+    
+    // Also prevent any new DatePickers from appearing
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                setTimeout(disableDatePicker, 10);
+            }
+        });
+    });
+    
+    // Start observing
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    // Try multiple times
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    function tryDisableDatePicker() {
+        if (disableDatePicker()) {
+            console.log('✅ DatePicker dropdown disabled');
+        } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(tryDisableDatePicker, 500);
+        }
+    }
+    
+    // Start
+    setTimeout(tryDisableDatePicker, 1000);
+    setTimeout(tryDisableDatePicker, 2000);
+    setTimeout(tryDisableDatePicker, 3000);
+});
+</script>
