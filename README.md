@@ -325,22 +325,9 @@ Please refer to the LICENSE file for more details.
 
 If you encounter any issues or have questions, feel free to reach out through the following channels:
 
-- Open an issue on the [GitHub repository](https://github.com/qtecsolution/qpos).
-- **Call for Queries**: +8801313522828 (WhatsApp)
-- **Contact Form**: [Qtec Solution Contact Page](https://qtecsolution.com/contact-us)
-- **Email**: [info@qtecsolution.com](mailto:info@qtecsolution.com)
+- Open an issue on the [GitHub repository](https://github.com/Ephr-aim/restaurant-pos).
+- **Call for Queries**: +254742628281 (WhatsApp)
+- **Email**: [techlink.dvpt@gmail.com.com]
 
 
 
-## Follow Us on Social Media
-
-Stay updated with the latest news, updates, and releases:
-
-![Qtec Solution Limited.](https://raw.githubusercontent.com/qtecsolution/qtecsolution/refs/heads/main/QTEC-Solution-Limited.png) <br>
-[![View Portfolio](https://img.shields.io/badge/View%20Portfolio-%230077B5?style=for-the-badge&logo=portfolio&logoColor=white)](https://qtecsolution.com/Qtec-Solution-Limited-Portfolio.pdf)
-[![Facebook](https://img.shields.io/badge/Facebook-4267B2?style=for-the-badge&logo=facebook&logoColor=white)](https://www.facebook.com/QtecSolution/)
-[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/qtecsolution/)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/qtec-solution)
-[![X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](https://twitter.com/qtec_solution)
-[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@qtecsolutionlimited)
-[![Website](https://img.shields.io/badge/Website-000000?style=for-the-badge&logo=google-chrome&logoColor=white)](https://qtecsolution.com/)
