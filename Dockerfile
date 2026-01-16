@@ -1,31 +1,40 @@
-# Use the official PHP image as a base image
+# Use PHP-FPM as base
 FROM php:8.2-fpm
 
-# Set the working directory inside the container
-WORKDIR /var/www
-
-# Install system dependencies
+# Install Nginx and dependencies
 RUN apt-get update && apt-get install -y \
-  libpng-dev \
-  libjpeg-dev \
-  libfreetype6-dev \
-  libzip-dev \
-  unzip \
-  git \
-  && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install gd zip pdo pdo_mysql
+    nginx \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    unzip \
+    git \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd zip pdo pdo_mysql
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy the application code into the container
+# Set working directory
+WORKDIR /var/www
+
+# Copy application files
 COPY . .
 
-# Install application dependencies without interaction and optimize autoload files
+# Install PHP dependencies
 RUN composer install --no-interaction --optimize-autoloader
 
-# Expose port 9000 for PHP-FPM
-EXPOSE 9000
+# Copy Nginx configuration
+COPY docker-compose/nginx/default.conf /etc/nginx/sites-available/default
 
-# Start PHP-FPM server
-CMD ["php-fpm"]
+# Create a start script that runs both PHP-FPM and Nginx
+RUN echo '#!/bin/bash\n\
+php-fpm -D\n\
+nginx -g "daemon off;"\n\
+' > /start.sh && chmod +x /start.sh
+
+EXPOSE 80
+
+# Start both services
+CMD ["/start.sh"]
