@@ -1,9 +1,11 @@
 # Use PHP-FPM as base
 FROM php:8.2-fpm
 
-# Install Nginx and dependencies
+# Install Nginx, Node.js and dependencies
 RUN apt-get update && apt-get install -y \
     nginx \
+    nodejs \
+    npm \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
@@ -25,7 +27,11 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-interaction --optimize-autoloader
 
-# Fix storage permissions - CRITICAL FIX
+# Install and build frontend assets
+RUN npm install
+RUN npm run build
+
+# Fix storage permissions
 RUN mkdir -p storage/framework/{sessions,views,cache}
 RUN mkdir -p storage/logs
 RUN chmod -R 775 storage
