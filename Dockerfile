@@ -25,10 +25,16 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-interaction --optimize-autoloader
 
+# Fix storage permissions - CRITICAL FIX
+RUN mkdir -p storage/framework/{sessions,views,cache}
+RUN mkdir -p storage/logs
+RUN chmod -R 775 storage
+RUN chown -R www-data:www-data storage bootstrap/cache
+
 # Copy Nginx configuration
 COPY docker-compose/nginx/default.conf /etc/nginx/sites-available/default
 
-# Create a start script that runs both PHP-FPM and Nginx
+# Create a start script
 RUN echo '#!/bin/bash\n\
 php-fpm -D\n\
 nginx -g "daemon off;"\n\
